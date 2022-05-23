@@ -15,7 +15,7 @@ import {
 } from "interactions.ts";
 import { connect, HydratedDocument } from "mongoose";
 import { createClient } from "redis";
-import { CreateEmbed, CreateRoleButton, ManageRoleButtons, Ping } from "./commands";
+import { About, CreateEmbed, CreateRoleButton, Help, ManageRoleButtons, Ping } from "./commands";
 import Avatar from "./commands/Avatar";
 import { Guild, IGuild } from "./models/Guild";
 
@@ -82,7 +82,15 @@ declare module "interactions.ts" {
   });
 
   await app.commands.register(
-    [new Ping(), new Avatar(), new ManageRoleButtons(), new CreateEmbed(), new CreateRoleButton()],
+    [
+      new Help(),
+      new About(),
+      new Ping(),
+      new Avatar(),
+      new ManageRoleButtons(),
+      new CreateEmbed(),
+      new CreateRoleButton()
+    ],
     true
   );
 
