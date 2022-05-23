@@ -3,44 +3,39 @@ import {
   Button,
   ButtonBuilder,
   ButtonContext,
-  ButtonStyle,
   EmbedBuilder,
   ISlashCommand,
   MessageBuilder,
   SlashCommandBuilder,
-  SlashCommandContext,
-  SlashCommandStringOption
+  SlashCommandContext
 } from "interactions.ts";
 
-type TestButtonState = {
-  word: string;
+type State = {
+  ping: boolean;
 };
 
 export class Ping implements ISlashCommand {
-  public builder = new SlashCommandBuilder("ping", "Simple ping command.").addStringOption(
-    new SlashCommandStringOption("word", "Enter a word to store with the button.")
-  );
+  public builder = new SlashCommandBuilder("ping", "Simple ping command.");
 
   public handler = async (ctx: SlashCommandContext): Promise<void> => {
-    const word = (ctx.options.get("word")?.value as string) ?? "Hello World!";
-    const button = await ctx.manager.components.createInstance("test", { word: word });
+    const button = await ctx.createComponent("pong", { ping: false });
 
-    return ctx.reply(
-      new MessageBuilder()
-        .addEmbed(new EmbedBuilder().setTitle("Pong!"))
-        .addComponents(new ActionRowBuilder().addComponents(button))
-    );
+    return ctx.reply(new MessageBuilder().addComponents(new ActionRowBuilder([button])));
   };
 
   public components = [
     new Button(
-      "test",
-      new ButtonBuilder().setEmoji({ name: "🔍" }).setStyle(ButtonStyle.Primary),
-      async (ctx: ButtonContext<TestButtonState>): Promise<void> => {
-        const word = ctx.state ? ctx.state.word : "Component state has expired.";
+      "pong",
+      new ButtonBuilder().setEmoji({ name: "🏓" }).setStyle(1),
+      async (ctx: ButtonContext<State>): Promise<void> => {
+        if (!ctx.state) throw new Error("State missing.");
 
-        return ctx.reply(new MessageBuilder().addEmbed(new EmbedBuilder().setTitle(word)));
+        ctx.reply(
+          new MessageBuilder(new EmbedBuilder().setTitle(ctx.state.ping ? "Pong!" : "Ping!")).addComponents(
+            new ActionRowBuilder([await ctx.createComponent("ping.pong", { ping: !ctx.state.ping })])
+          )
+        );
       }
-    ).setAllowExpired(true)
+    )
   ];
 }

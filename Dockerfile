@@ -12,7 +12,9 @@ RUN yarn install
 # Build
 FROM base AS builder
 
-COPY . .
+COPY src src
+COPY .eslintrc .
+COPY tsconfig.json .
 
 RUN yarn build
 

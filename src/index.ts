@@ -2,15 +2,22 @@ import "dotenv/config";
 import fastify from "fastify";
 import rawBody from "fastify-raw-body";
 import {
+  AutocompleteContext,
   DiscordApplication,
+  InteractionContext,
   InteractionHandlerTimedOut,
+  PingContext,
+  SimpleError,
   UnauthorizedInteraction,
   UnknownApplicationCommandType,
   UnknownComponentType,
   UnknownInteractionType
 } from "interactions.ts";
+import { connect, HydratedDocument } from "mongoose";
 import { createClient } from "redis";
-import { Config, Ping } from "./commands";
+import { CreateEmbed, CreateRoleButton, ManageRoleButtons, Ping } from "./commands";
+import Avatar from "./commands/Avatar";
+import { Guild, IGuild } from "./models/Guild";
 
 const keys = ["CLIENT_ID", "TOKEN", "PUBLIC_KEY", "PORT"];
 
@@ -19,8 +26,16 @@ if (keys.some((key) => !(key in process.env))) {
   process.exit(1);
 }
 
+declare module "interactions.ts" {
+  interface BaseInteractionContext {
+    db: HydratedDocument<IGuild>;
+  }
+}
+
 (async () => {
-  const redisClient = createClient();
+  const redisClient = createClient({
+    url: "redis://redis"
+  });
 
   await redisClient.connect();
 
@@ -32,10 +47,46 @@ if (keys.some((key) => !(key in process.env))) {
     cache: {
       get: (key: string) => redisClient.get(key),
       set: (key: string, ttl: number, value: string) => redisClient.setEx(key, ttl, value)
+    },
+
+    hooks: {
+      interaction: async (ctx: InteractionContext) => {
+        if (ctx instanceof PingContext) return;
+        if (!ctx.interaction.guild_id) return;
+
+        let data;
+
+        try {
+          data = await Guild.findOne({ id: ctx.interaction.guild_id });
+
+          if (data) {
+            await data.populate("webhooks");
+          } else {
+            data = new Guild({ id: ctx.interaction.guild_id });
+          }
+        } catch (err) {
+          console.error(err);
+
+          if (ctx instanceof AutocompleteContext) {
+            await ctx.reply([]);
+          } else {
+            await ctx.reply(SimpleError("There was an error loading your game data"));
+          }
+
+          return true;
+        }
+
+        ctx.decorate("db", data);
+      }
     }
   });
 
-  await app.commands.register([new Ping(), new Config()], false);
+  await app.commands.register(
+    [new Ping(), new Avatar(), new ManageRoleButtons(), new CreateEmbed(), new CreateRoleButton()],
+    true
+  );
+
+  console.dir(app.components, { depth: 5, color: true });
 
   const server = fastify();
   server.register(rawBody);
@@ -85,6 +136,8 @@ if (keys.some((key) => !(key in process.env))) {
       console.error(err);
     }
   });
+
+  await connect(`mongodb://mongo/easy-roles`);
 
   const address = "0.0.0.0";
   const port = process.env.PORT as string;

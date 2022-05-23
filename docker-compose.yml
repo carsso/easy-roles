@@ -2,9 +2,28 @@ version: '3'
 
 services:
 
-  bot-template:
-    container_name: bot-template
-    image: bot-template:latest
+  redis:
+    image: redis
+
+    restart: unless-stopped
+
+  mongo:
+    image: mongo
+    
+    ports:
+      - "27018:27017"
+
+    restart: unless-stopped
+
+  easy-roles:
+    container_name: easy-roles
+    image: easy-roles:latest
+
     ports:
       - "8080:8080"
+
+    depends_on:
+      - redis
+      - mongo
+
     restart: unless-stopped
