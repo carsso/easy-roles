@@ -121,25 +121,22 @@ export class CreateRoleButton implements ISlashCommand {
         await ctx.manager.rest[method](
           Routes.guildMemberRole(ctx.interaction.guild_id, ctx.interaction.member.user.id, ctx.state.roleId)
         );
-      } catch (err) {
-        console.error(err);
-
-        await ctx.send(
-          SimpleError(
-            `I don't have the required permissions to assign this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the role you're trying to toggle - if you do, you've reached the maximum number of webhooks.`
-          ).setEphemeral(true)
-        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        switch (err.code as number) {
+          case 30007: {
+            await ctx.send(SimpleError(`You've reached the maximum number of webhooks.`).setEphemeral(true));
+            break;
+          }
+          default: {
+            console.error(err);
+            await ctx.send(SimpleError("An unknown error occurred.").setEphemeral(true));
+            break;
+          }
+        }
 
         return;
       }
-
-      await ctx.send(
-        SimpleEmbed(
-          `You ${method === "put" ? "now" : "no longer"} have the <@&${ctx.state.roleId}> role!`
-        ).setEphemeral(true)
-      );
-
-      return;
     })
   ];
 }
