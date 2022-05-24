@@ -35,7 +35,7 @@ export default class Avatar implements IUserCommand {
     }
 
     const actionRow = new ActionRowBuilder([
-      await ctx.manager.components.createInstance("user", {
+      await ctx.createComponent("user", {
         name: ctx.target.user.username.length > 15 ? name.substring(0, 15) + "..." : name,
         userId: userId,
         avatar: ctx.target.user.avatar
@@ -45,14 +45,14 @@ export default class Avatar implements IUserCommand {
     let guildAvatarButton;
 
     if (server) {
-      guildAvatarButton = await ctx.manager.components.createInstance("guild", {
+      guildAvatarButton = await ctx.createComponent("guild", {
         name: name.length > 15 ? name.substring(0, 15) + "..." : name,
         userId: userId,
         avatar: avatar,
         guildId: guildId
       });
     } else {
-      guildAvatarButton = await ctx.manager.components.createInstance("guild");
+      guildAvatarButton = await ctx.createComponent("guild");
 
       guildAvatarButton.setDisabled(true);
     }
