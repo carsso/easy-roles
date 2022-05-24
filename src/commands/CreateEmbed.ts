@@ -81,12 +81,12 @@ export class CreateEmbed implements ISlashCommand {
         } catch (err: any) {
           switch (err.code as number) {
             case 30007: {
-              await ctx.edit(SimpleError(`You've reached the maximum number of webhooks.`).setEphemeral(true));
+              await ctx.reply(SimpleError(`You've reached the maximum number of webhooks.`).setEphemeral(true));
               break;
             }
             default: {
               console.error(err);
-              await ctx.edit(SimpleError("An unknown error occurred.").setEphemeral(true));
+              await ctx.reply(SimpleError("An unknown error occurred.").setEphemeral(true));
               break;
             }
           }
