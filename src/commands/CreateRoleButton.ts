@@ -124,11 +124,13 @@ export class CreateRoleButton implements ISlashCommand {
       } catch (err) {
         console.error(err);
 
-        return ctx.reply(
+        await ctx.send(
           SimpleError(
             `I don't have the required permissions to assign this role. Please contact a server admin.`
           ).setEphemeral(true)
         );
+
+        return;
       }
 
       await ctx.send(
