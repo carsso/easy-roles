@@ -21,7 +21,7 @@ export class Avatar implements ISlashCommand {
   );
 
   public handler = async (ctx: SlashCommandContext): Promise<void> => {
-    const target = ctx.getUserOption("avatar");
+    const target = ctx.getUserOption("user");
 
     let server = false;
 

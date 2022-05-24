@@ -93,8 +93,6 @@ declare module "interactions.ts" {
     true
   );
 
-  console.dir(app.components, { depth: 5, color: true });
-
   const server = fastify();
   server.register(rawBody);
 

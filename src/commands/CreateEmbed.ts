@@ -42,7 +42,9 @@ export class CreateEmbed implements ISlashCommand {
       new ModalBuilder()
         .addComponents(
           new ActionRowBuilder([
-            new TextInputBuilder("name", "Name", TextInputStyle.Short).setPlaceholder("A name for your webhook.")
+            new TextInputBuilder("name", "Webhook Name", TextInputStyle.Short).setPlaceholder(
+              "A name for the webhook through which the role menu will be created."
+            )
           ]),
           new ActionRowBuilder([
             new TextInputBuilder("title", "Title", TextInputStyle.Short)
