@@ -111,19 +111,31 @@ export class CreateRoleButton implements ISlashCommand {
 
       await ctx.defer();
 
+      let method: "delete" | "put" = "put";
+
       if (ctx.interaction.member.roles.find((id) => id === ctx.state?.roleId)) {
-        await ctx.manager.rest.delete(
-          Routes.guildMemberRole(ctx.interaction.guild_id, ctx.interaction.member.user.id, ctx.state.roleId)
-        );
-
-        await ctx.send(SimpleEmbed(`You no longer have the <@&${ctx.state.roleId}> role!`).setEphemeral(true));
-      } else {
-        await ctx.manager.rest.put(
-          Routes.guildMemberRole(ctx.interaction.guild_id, ctx.interaction.member.user.id, ctx.state.roleId)
-        );
-
-        await ctx.send(SimpleEmbed(`You now have the <@&${ctx.state.roleId}> role!`).setEphemeral(true));
+        method = "delete";
       }
+
+      try {
+        await ctx.manager.rest[method](
+          Routes.guildMemberRole(ctx.interaction.guild_id, ctx.interaction.member.user.id, ctx.state.roleId)
+        );
+      } catch (err) {
+        console.error(err);
+
+        return ctx.reply(
+          SimpleError(
+            `I don't have the required permissions to assign this role. Please contact a server admin.`
+          ).setEphemeral(true)
+        );
+      }
+
+      await ctx.send(
+        SimpleEmbed(
+          `You ${method === "put" ? "now" : "no longer"} have the <@&${ctx.state.roleId}> role!`
+        ).setEphemeral(true)
+      );
 
       return;
     })

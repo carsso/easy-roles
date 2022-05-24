@@ -72,7 +72,6 @@ export default class Avatar implements IUserCommand {
         if (!ctx.state) return ctx.reply("Avatar unavailable.");
 
         const message = await buildAvatarEmbed(ctx.state.name, ctx.state.userId, ctx.state.avatar);
-        console.dir(message.toJSON(), { depth: 5, color: true });
 
         return ctx.reply(message);
       }
@@ -89,8 +88,6 @@ export default class Avatar implements IUserCommand {
           ctx.state.avatar,
           ctx.interaction.guild_id
         );
-
-        console.dir(message.toJSON(), { depth: 5, color: true });
 
         return ctx.reply(message);
       }
