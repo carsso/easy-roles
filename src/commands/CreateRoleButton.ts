@@ -124,8 +124,12 @@ export class CreateRoleButton implements ISlashCommand {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         switch (err.code as number) {
-          case 30007: {
-            await ctx.send(SimpleError(`You've reached the maximum number of webhooks.`).setEphemeral(true));
+          case 50013: {
+            await ctx.send(
+              SimpleError(
+                `I don't have permission to assign this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the one you're trying to toggle.`
+              ).setEphemeral(true)
+            );
             break;
           }
           default: {
