@@ -90,7 +90,7 @@ declare module "interactions.ts" {
       new CreateEmbed(),
       new CreateRoleButton()
     ],
-    true
+    false
   );
 
   const server = fastify();
