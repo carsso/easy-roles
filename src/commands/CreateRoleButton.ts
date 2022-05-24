@@ -126,7 +126,7 @@ export class CreateRoleButton implements ISlashCommand {
 
         await ctx.send(
           SimpleError(
-            `I don't have the required permissions to assign this role. Please contact a server admin.`
+            `I don't have the required permissions to assign this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the role you're trying to toggle.`
           ).setEphemeral(true)
         );
 
