@@ -15,10 +15,8 @@ import {
 } from "interactions.ts";
 import { connect, HydratedDocument } from "mongoose";
 import { createClient } from "redis";
-import { About, CreateEmbed, CreateRoleButton, Help, ManageRoleButtons, Ping } from "./commands";
-import Avatar from "./commands/Avatar";
+import { About, Avatar, AvatarContext, CreateEmbed, CreateRoleButton, Help, ManageRoleButtons, Ping } from "./commands";
 import { Guild, IGuild } from "./models/Guild";
-
 const keys = ["CLIENT_ID", "TOKEN", "PUBLIC_KEY", "PORT"];
 
 if (keys.some((key) => !(key in process.env))) {
@@ -87,6 +85,7 @@ declare module "interactions.ts" {
       new About(),
       new Ping(),
       new Avatar(),
+      new AvatarContext(),
       new ManageRoleButtons(),
       new CreateEmbed(),
       new CreateRoleButton()
