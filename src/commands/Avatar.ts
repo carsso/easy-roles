@@ -43,7 +43,7 @@ export class Avatar implements ISlashCommand {
     }
 
     const actionRow = new ActionRowBuilder([
-      await ctx.createComponent("user", {
+      await ctx.createGlobalComponent("Avatar.user", {
         name: target.user.username.length > 15 ? name.substring(0, 15) + "..." : name,
         userId: userId,
         avatar: target.user.avatar
@@ -53,14 +53,14 @@ export class Avatar implements ISlashCommand {
     let guildAvatarButton;
 
     if (server) {
-      guildAvatarButton = await ctx.createComponent("guild", {
+      guildAvatarButton = await ctx.createGlobalComponent("Avatar.guild", {
         name: name.length > 15 ? name.substring(0, 15) + "..." : name,
         userId: userId,
         avatar: avatar,
         guildId: guildId
       });
     } else {
-      guildAvatarButton = await ctx.createComponent("guild");
+      guildAvatarButton = await ctx.createGlobalComponent("Avatar.guild");
 
       guildAvatarButton.setDisabled(true);
     }
