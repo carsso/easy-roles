@@ -77,14 +77,21 @@ export class CreateEmbed implements ISlashCommand {
               avatar: AvatarData.data
             }
           })) as APIWebhook;
-        } catch (err) {
-          console.error(err);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+          switch (err.code as number) {
+            case 30007: {
+              await ctx.send(SimpleError(`You've reached the maximum number of webhooks.`).setEphemeral(true));
+              break;
+            }
+            default: {
+              console.error(err);
+              await ctx.send(SimpleError("An unknown error occurred.").setEphemeral(true));
+              break;
+            }
+          }
 
-          return ctx.reply(
-            SimpleError(
-              `Unable to create webhook. Please ensure the bot has the \`\`Manage Webhooks\`\` permission and try again.`
-            ).setEphemeral(true)
-          );
+          return;
         }
 
         const webhookDataIndex =
