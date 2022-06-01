@@ -10,20 +10,29 @@ services:
   mongo:
     image: mongo
     
+    restart: unless-stopped
     ports:
       - "27018:27017"
-
-    restart: unless-stopped
 
   easy-roles:
     container_name: easy-roles
     image: easy-roles:latest
 
     ports:
-      - "8080:8080"
+      - "8084:8080"
 
     depends_on:
       - redis
       - mongo
+
+    restart: unless-stopped
+  
+  join-alerts:
+    container_name: join-alerts
+    image: join-alerts:latest
+
+    environment:
+      DISCORD_TOKEN: "${TOKEN}"
+      TARGET_URI: "http://easy-roles:8080/member-join"
 
     restart: unless-stopped

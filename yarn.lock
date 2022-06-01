@@ -887,10 +887,10 @@ inherits@2, inherits@2.0.4:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
-interactions.ts@^1.0.36:
-  version "1.0.36"
-  resolved "https://registry.yarnpkg.com/interactions.ts/-/interactions.ts-1.0.36.tgz#b0a5df756dc50d8174be042ed16f7624a442b75c"
-  integrity sha512-Kcv6eAWSAONM8J2LiW4xTu8zmEwh1l0z7iROtmMpF3jRFgD/5PjcXlDevRDir9+dvRPvmFQy5FalwUdfST/kQw==
+interactions.ts@^1.0.39:
+  version "1.0.39"
+  resolved "https://registry.yarnpkg.com/interactions.ts/-/interactions.ts-1.0.39.tgz#a22025e760bb9732d652ad616bd218b4a44c48c7"
+  integrity sha512-8ni++9RMv9Oe4IAn9RDwTQZxqvIniId3cicIJKCHXls4GdUN4E3A0gbv2ukH2ei8MloqDSyUZaYuwCDajeClKg==
   dependencies:
     "@discordjs/rest" "^0.3.0"
     discord-api-types "^0.32.1"

@@ -1,0 +1,107 @@
+import { APIActionRowComponent, APIMessageActionRowComponent, ComponentType } from "discord-api-types/v10";
+import {
+  ActionRowBuilder,
+  Button,
+  ButtonBuilder,
+  ButtonContext,
+  EmbedBuilder,
+  IMessageCommand,
+  MessageBuilder,
+  MessageCommandBuilder,
+  MessageCommandContext,
+  PermissionBits
+} from "interactions.ts";
+import { stringifyEmoji } from "../../util/stringify-emoji";
+import { CreateRoleButtonButtons } from "./create-button";
+import { DeleteRoleButtonButtons } from "./delete-button";
+
+type RefreshState = { messageId: string; authorId: string };
+
+export class ManageRoleButtons implements IMessageCommand {
+  public builder = new MessageCommandBuilder("Manage Role Buttons")
+    .setDMEnabled(false)
+    .addRequiredPermissions(PermissionBits.ADMINISTRATOR);
+
+  public handler = async (ctx: MessageCommandContext): Promise<void> => {
+    return ctx.reply(await buildMessageRoleButtonMenu(ctx));
+  };
+
+  public components = [
+    new Button(
+      "refresh",
+      new ButtonBuilder().setEmoji({ name: "🔄" }).setStyle(2),
+      async (ctx: ButtonContext<RefreshState>): Promise<void> => {
+        return ctx.reply(await buildMessageRoleButtonMenu(ctx));
+      }
+    ),
+    ...CreateRoleButtonButtons,
+    ...DeleteRoleButtonButtons
+  ];
+}
+
+async function buildMessageRoleButtonMenu(
+  ctx: MessageCommandContext | ButtonContext<RefreshState>
+): Promise<MessageBuilder> {
+  let messageId: string, authorId: string;
+
+  if (ctx instanceof MessageCommandContext) {
+    messageId = Object.keys(ctx.interaction.data.resolved.messages)[0] as string;
+    authorId = ctx.interaction.data.resolved.messages[messageId].author.id;
+  } else {
+    messageId = ctx.state!.messageId;
+    authorId = ctx.state!.authorId;
+  }
+
+  if (!ctx.webhook || ctx.webhook.id !== authorId) {
+    return new MessageBuilder()
+      .setEphemeral(true)
+      .setContent("You can only use this command on messages sent through the bot.");
+  }
+
+  const embed = new EmbedBuilder().setTitle("Role Buttons");
+  let description = "";
+
+  const message = ctx.webhook.messages.get(messageId);
+
+  if (!message) {
+    return new MessageBuilder().setEphemeral(true).setContent("Message not found.");
+  }
+
+  const components: APIActionRowComponent<APIMessageActionRowComponent>[] = message.components
+    ? JSON.parse(message.components)
+    : [];
+
+  for (const actionRow of components) {
+    for (const component of actionRow.components) {
+      if (component.type === ComponentType.Button) {
+        const customId = (component as { custom_id: string }).custom_id ?? "";
+        const roleId = JSON.parse(customId.split("|")[1]).roleId as string;
+
+        if (!roleId) continue;
+
+        const emoji = `${component.emoji ? stringifyEmoji(component.emoji) : ""}`;
+
+        description += `${
+          component.label ? `\`\`${component.label}${emoji}\`\`` : `\`\`${emoji}\`\``
+        } - <@&${roleId}>\n`;
+      }
+    }
+  }
+
+  if (description === "") {
+    description =
+      "No role buttons found. Create one first using the ``/create-role-button`` command or the menu below.";
+  }
+
+  embed.setDescription(description);
+
+  return new MessageBuilder(embed)
+    .setEphemeral(true)
+    .addComponents(
+      new ActionRowBuilder([
+        await ctx.createComponent("refresh", { messageId, authorId }),
+        await ctx.createComponent("createRoleButton", { parentId: messageId }),
+        await ctx.createComponent("removeRoleButton", { parentId: messageId })
+      ])
+    );
+}

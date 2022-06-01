@@ -1,14 +1,14 @@
 {
   "name": "easy-roles",
   "version": "1.0.0",
-  "description": "A basic Discord bot template using @ssMMiles/interactions.ts",
+  "description": "A role management Discord bot, featuring self-role buttons and an autorole.",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
     "format": "prettier --write src",
     "lint": "eslint src/**/*.ts",
     "build": "yarn format & yarn lint && tsc -p tsconfig.json",
-    "build:docker": "docker build -t bot-template .",
+    "build:docker": "docker build -t easy-roles .",
     "start": "node dist/index.js",
     "dev": "yarn build && yarn start"
   },
@@ -19,7 +19,7 @@
     "dotenv": "^16.0.0",
     "fastify": "^3.27.4",
     "fastify-raw-body": "^3.2.0",
-    "interactions.ts": "^1.0.36",
+    "interactions.ts": "^1.0.39",
     "mongoose": "^6.3.4",
     "redis": "^4.1.0"
   },

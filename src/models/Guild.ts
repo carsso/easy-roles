@@ -1,20 +1,35 @@
 import { model, Schema, Types } from "mongoose";
 
+interface IMessage {
+  id: string;
+
+  components: string;
+}
+
 interface IWebhook {
   channelId: string;
 
   id: string;
   token: string;
 
-  components: string;
-  lastSentId?: string;
+  latestMessage: string;
+  messages: Types.Map<IMessage>;
 }
 
 interface IGuild {
   id: string;
 
-  webhooks: Types.Array<IWebhook>;
+  webhooks: Types.Map<IWebhook>;
+
+  autoroles: Types.Array<string>;
+  autoroleFailures: Types.Map<number>;
 }
+
+const MessageSchema = new Schema<IMessage>({
+  id: { type: String, required: true },
+
+  components: { type: String, required: true, default: "[]" }
+});
 
 const WebhookSchema = new Schema<IWebhook>({
   channelId: { type: String, required: true },
@@ -22,20 +37,37 @@ const WebhookSchema = new Schema<IWebhook>({
   id: { type: String, required: true },
   token: { type: String, required: true },
 
-  lastSentId: { type: String, required: false },
-  components: { type: String, required: false }
-});
-
-const GuildSchema = new Schema<IGuild>({
-  id: { type: String, required: true, unique: true },
-
-  webhooks: {
-    type: [WebhookSchema],
+  latestMessage: { type: String, required: true, default: "" },
+  messages: {
+    type: Map,
     required: true,
-    default: []
+    of: MessageSchema
   }
 });
 
+const GuildSchema = new Schema<IGuild>({
+  id: { type: String, required: true, unique: true, index: true },
+
+  webhooks: {
+    type: Map,
+    required: true,
+    of: WebhookSchema
+  },
+
+  autoroles: {
+    type: [String],
+    required: true,
+    default: []
+  },
+  autoroleFailures: {
+    type: Map,
+    required: true,
+    of: Number
+  }
+});
+
+const Message = model<IMessage>("Message", MessageSchema);
+const Webhook = model<IWebhook>("Webhook", WebhookSchema);
 const Guild = model<IGuild>("Guild", GuildSchema);
 
-export { Guild, GuildSchema, IGuild };
+export { Guild, GuildSchema, IGuild, Webhook, IWebhook, WebhookSchema, Message, IMessage, MessageSchema };

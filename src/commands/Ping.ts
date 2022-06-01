@@ -18,9 +18,11 @@ export class Ping implements ISlashCommand {
   public builder = new SlashCommandBuilder("ping", "Simple ping command.");
 
   public handler = async (ctx: SlashCommandContext): Promise<void> => {
-    const button = await ctx.createComponent("pong", { ping: false });
-
-    return ctx.reply(new MessageBuilder().addComponents(new ActionRowBuilder([button])));
+    return ctx.reply(
+      new MessageBuilder(new EmbedBuilder("Pong!")).addComponents(
+        new ActionRowBuilder([await ctx.createComponent("pong", { ping: false })])
+      )
+    );
   };
 
   public components = [
@@ -32,7 +34,7 @@ export class Ping implements ISlashCommand {
 
         ctx.reply(
           new MessageBuilder(new EmbedBuilder().setTitle(ctx.state.ping ? "Pong!" : "Ping!")).addComponents(
-            new ActionRowBuilder([await ctx.createComponent("ping.pong", { ping: !ctx.state.ping })])
+            new ActionRowBuilder([await ctx.createComponent("pong", { ping: !ctx.state.ping })])
           )
         );
       }

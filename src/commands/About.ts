@@ -9,13 +9,19 @@ export class About implements ISlashCommand {
         new EmbedBuilder(
           "About The Bot",
           `
-          <@976236745655980072> is a utility bot offering functionality like old school reaction role bots, but with buttons.
+          <@976236745655980072> provides an easy way to create and manage Self-Role buttons. These buttons are each tied to a role, which will be granted to any user who clicks the button. (Or removes the role, if you already have it.)
 
-          Create an embed, then add buttons to it that users can click on to quickly add/remove a role from themselves. 
+          Create a menu using \`\`/create-menu\`\`, then use the interactive menu under:
+
+          Hold/Right Click on Message -> Apps -> Manage Role Buttons
+
+          If you'd like to stick to commands, you can also use \`\`/create-role-button\`\` to create a button on the most recent menu in the channel.
+
+          You can invite it by clicking on its profile, or by clicking the link below. After that, use \`\`/create-menu\`\` and enjoy!
           
-          You can invite it by clicking on its profile, or by [clicking here :)](https://rocksolidrobots.com/toolbox) After that, use /create-embed and enjoy!`
+          [ToS](https://rocksolidrobots.net/terms-of-service) | [Privacy Policy](https://rocksolidrobots.net/privacy-policy) | [Discord Support](https://rocksolidrobots.net/discord) | [Invite The Bot](https://rocksolidrobots.net/easy-roles) | [Vote For Us!](https://top.gg/bot/976236745655980072/vote)`
         ).setFooter({
-          text: `This bot is a part of the RockSolidRobots network, find more from us at rocksolidbots.net/invite.`
+          text: `This bot is a part of the RockSolidRobots network, find more from us at rocksolidrobots.net`
         })
       )
     );
