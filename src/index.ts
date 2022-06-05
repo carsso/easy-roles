@@ -130,7 +130,19 @@ type State = {
           case 50013: {
             await ctx.send(
               SimpleError(
-                `I don't have permission to assign this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the one you're trying to toggle.`
+                `I don't have permission to ${
+                  method === "put" ? "assign" : "remove"
+                } this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the one you're trying to toggle.`
+              ).setEphemeral(true)
+            );
+            break;
+          }
+          case 50001: {
+            await ctx.send(
+              SimpleError(
+                `I don't have permission to ${
+                  method === "put" ? "assign" : "remove"
+                } this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the one you're trying to toggle.`
               ).setEphemeral(true)
             );
             break;
@@ -153,6 +165,8 @@ type State = {
     })
   ]);
 
+  const avatar = (await app.commands.getAPICommands()).find((cmd) => cmd.name === "Avatar");
+
   await app.commands.register(
     [
       new Help(),
@@ -165,8 +179,6 @@ type State = {
     ],
     false
   );
-
-  // await app.commands.deleteUnregistered();
 
   const server = fastify();
   server.register(rawBody);
