@@ -140,6 +140,7 @@ const DefineRoleButton = new Modal(
 
     try {
       roles = (await ctx.manager.rest.get(`/guilds/${ctx.interaction.guild_id}/roles`)) as RESTGetAPIGuildRolesResult;
+      roles.sort((a, b) => b.position - a.position);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       switch (err.code as number) {
@@ -167,7 +168,6 @@ const DefineRoleButton = new Modal(
       .addComponents(new ActionRowBuilder([roleMenu]))
       .setEphemeral(true);
 
-    let addPagination = false;
     const pageRow = new ActionRowBuilder();
 
     const back = (await ctx.createComponent("selectRolePrevPage", data)).setDisabled(true);
@@ -177,15 +177,10 @@ const DefineRoleButton = new Modal(
 
     if (roles.length >= 25) {
       next.setDisabled(false);
-
-      addPagination = true;
     }
 
     pageRow.addComponents(back, next, search);
-
-    if (addPagination) {
-      message.addComponents(pageRow);
-    }
+    message.addComponents(pageRow);
 
     await ctx.reply(message);
   }
@@ -219,6 +214,7 @@ const RoleListBackPage = new Button(
 
     try {
       roles = (await ctx.manager.rest.get(`/guilds/${ctx.interaction.guild_id}/roles`)) as RESTGetAPIGuildRolesResult;
+      roles.sort((a, b) => b.position - a.position);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       switch (err.code as number) {
@@ -282,6 +278,7 @@ const RoleListNextPage = new Button(
 
     try {
       roles = (await ctx.manager.rest.get(`/guilds/${ctx.interaction.guild_id}/roles`)) as RESTGetAPIGuildRolesResult;
+      roles.sort((a, b) => b.position - a.position);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       switch (err.code as number) {
@@ -376,6 +373,7 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
 
     try {
       roles = (await ctx.manager.rest.get(`/guilds/${ctx.interaction.guild_id}/roles`)) as RESTGetAPIGuildRolesResult;
+      roles.sort((a, b) => b.position - a.position);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       switch (err.code as number) {
@@ -396,10 +394,11 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
       value = roles.find((role) => role.id === input)?.id;
     } else {
       value = roles.find((role) => role.name === input)?.id;
+      if (!value) value = roles.find((role) => role.name.toLowerCase() === input.toLowerCase())?.id;
     }
 
     if (!value) {
-      return ctx.reply(SimpleError("Role not found."));
+      return ctx.reply(SimpleError("Role not found.").setEphemeral(true).setComponents([]));
     }
 
     roleId = value;
@@ -410,7 +409,7 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
   const message = ctx.webhook.messages.get(ctx.state.parentId);
 
   if (!message) {
-    return ctx.reply(new MessageBuilder().setEphemeral(true).setContent("Message not found."));
+    return ctx.reply(SimpleError("Message not found.").setEphemeral(true).setComponents([]));
   }
 
   const components: APIActionRowComponent<APIMessageActionRowComponent>[] = message.components
@@ -486,13 +485,17 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
         await ctx.reply(
           SimpleError(
             `I can't find this message, please ensure it hasn't been deleted and that the bot has access to view the channel.`
-          ).setEphemeral(true)
+          )
+            .setEphemeral(true)
+            .setComponents([])
         );
         break;
       }
       default: {
         console.error(err);
-        await ctx.reply(SimpleError("An unknown error occurred while adding your button.").setEphemeral(true));
+        await ctx.reply(
+          SimpleError("An unknown error occurred while adding your button.").setEphemeral(true).setComponents([])
+        );
         break;
       }
     }
