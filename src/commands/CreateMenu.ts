@@ -208,7 +208,7 @@ export class CreateMenu implements ISlashCommand {
                 ).setEphemeral(true)
               );
 
-              await ctx.db.updateOne({ $unset: { webhooks: { [ctx.webhook.id]: "" } } });
+              await ctx.db.updateOne({ $unset: { [`webhooks.${ctx.webhook.id}`]: "" } });
               break;
             }
             default: {
