@@ -167,8 +167,6 @@ type State = {
     })
   ]);
 
-  const avatar = (await app.commands.getAPICommands()).find((cmd) => cmd.name === "Avatar");
-
   await app.commands.register(
     [
       new Help(),
