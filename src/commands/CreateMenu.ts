@@ -218,6 +218,8 @@ export class CreateMenu implements ISlashCommand {
 
               update["$unset"][`webhooks.${ctx.webhook.id}`] = "";
 
+              console.dir(update, { depth: 5 });
+
               await Guild.updateOne({ id: ctx.db.id }, update);
               break;
             }
