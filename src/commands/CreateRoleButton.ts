@@ -154,29 +154,6 @@ export class CreateRoleButton implements ISlashCommand {
     ctx.db.markModified("webhooks");
     await ctx.db.save();
 
-    try {
-      await webhook.edit(new MessageBuilder({ components }), message.id);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      switch (err.code as number) {
-        case 10008: {
-          await ctx.reply(
-            SimpleError(
-              `I can't find this message, please ensure it hasn't been deleted and that the bot has access to view the channel.`
-            ).setEphemeral(true)
-          );
-          break;
-        }
-        default: {
-          console.error(err);
-          await ctx.reply(SimpleError("An unknown error occurred while adding your button.").setEphemeral(true));
-          break;
-        }
-      }
-
-      return;
-    }
-
     return ctx.reply(SimpleEmbed("Button created!").setEphemeral(true));
   };
 

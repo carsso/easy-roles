@@ -108,7 +108,31 @@ export class CreateMenu implements ISlashCommand {
         const webhook = new InteractionWebhook(webhookData.id, webhookData.token as string);
 
         const message = SimpleEmbed(description.value, title.value);
-        const sentMessage = await webhook.send(message);
+        let sentMessage;
+
+        try {
+          sentMessage = await webhook.send(message);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+          switch (err.code as number) {
+            case 10015: {
+              await ctx.reply(
+                SimpleError(
+                  `The webhook for this channel seems to have been deleted. This isn't recommended as you'll no longer be able to edit previously created menus, although their buttons will still function.\n\nTo continue, you'll have to create a new menu with \`\`/create-menu\`\`.`
+                ).setEphemeral(true)
+              );
+
+              break;
+            }
+            default: {
+              console.error(err);
+              await ctx.reply(SimpleError("An unknown error occurred while adding your button.").setEphemeral(true));
+              break;
+            }
+          }
+
+          return;
+        }
 
         const messageMap = new Map();
 
@@ -170,7 +194,31 @@ export class CreateMenu implements ISlashCommand {
         const webhook = new InteractionWebhook(ctx.webhook.id, ctx.webhook.token);
 
         const message = SimpleEmbed(description.value, title.value);
-        const sentMessage = await webhook.send(message);
+        let sentMessage;
+
+        try {
+          sentMessage = await webhook.send(message);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+          switch (err.code as number) {
+            case 10015: {
+              await ctx.reply(
+                SimpleError(
+                  `The webhook for this channel seems to have been deleted. This isn't recommended as you'll no longer be able to edit previously created menus, although their buttons will still function.\n\nTo continue, you'll have to create a new menu with \`\`/create-menu\`\`.`
+                ).setEphemeral(true)
+              );
+
+              break;
+            }
+            default: {
+              console.error(err);
+              await ctx.reply(SimpleError("An unknown error occurred while adding your button.").setEphemeral(true));
+              break;
+            }
+          }
+
+          return;
+        }
 
         ctx.db.webhooks.get(ctx.webhook.channelId)?.messages.set(sentMessage.id, {
           id: sentMessage.id,
