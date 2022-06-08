@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: easy-roles
+  namespace: default
+  labels:
+    app: easy-roles
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8082
+  selector:
+    app: easy-roles
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: easy-roles
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: easy-roles
+  template:
+    metadata:
+      labels:
+        app: easy-roles
+    spec:
+      containers:
+        - name: easy-roles
+          image: gcr.io/rock-solid-robots/easy-roles:cee90740-d5c3-4c90-a7d8-b3bc594e0f1e
+          ports:
+            - containerPort: 8082
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: 8082
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 8082
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          env:
+            - name: PORT
+              value: "8082"
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: easy-roles
+                  key: discord-token
+                  optional: false
+            - name: DISCORD_ID
+              valueFrom:
+                secretKeyRef:
+                  name: easy-roles
+                  key: discord-id
+                  optional: false
+            - name: DISCORD_PUBKEY
+              valueFrom:
+                secretKeyRef:
+                  name: easy-roles
+                  key: discord-pubkey
+                  optional: false
+            - name: REDIS_URI
+              valueFrom:
+                secretKeyRef:
+                  name: easy-roles
+                  key: redis-uri
+                  optional: false
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: easy-roles
+                  key: mongo-uri
+                  optional: false

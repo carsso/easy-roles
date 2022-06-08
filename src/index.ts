@@ -23,10 +23,12 @@ import { connect, HydratedDocument } from "mongoose";
 import { createClient } from "redis";
 import { About, Autorole, CreateMenu, CreateRoleButton, Help, ManageRoleButtons, Ping } from "./commands";
 import { Guild, IGuild, IWebhook } from "./models/Guild";
-const keys = ["CLIENT_ID", "TOKEN", "PUBLIC_KEY", "PORT"];
+const keys = ["PORT", "DISCORD_TOKEN", "DISCORD_ID", "DISCORD_PUBKEY", "REDIS_URI", "MONGO_URI"];
 
-if (keys.some((key) => !(key in process.env))) {
-  console.error(`Missing Enviroment Variables`);
+const missing = keys.filter((key) => !(key in process.env));
+
+if (missing.length !== 0) {
+  console.error(`Missing Enviroment Variable${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}`);
   process.exit(1);
 }
 
@@ -44,15 +46,15 @@ type State = {
 
 (async () => {
   const redisClient = createClient({
-    url: "redis://redis"
+    url: process.env.REDIS_URI
   });
 
   await redisClient.connect();
 
   const app = new DiscordApplication({
-    clientId: process.env.CLIENT_ID as string,
-    token: process.env.TOKEN as string,
-    publicKey: process.env.PUBLIC_KEY as string,
+    clientId: process.env.DISCORD_ID as string,
+    token: process.env.DISCORD_TOKEN as string,
+    publicKey: process.env.DISCORD_PUBKEY as string,
 
     cache: {
       get: (key: string) => redisClient.get(key),
@@ -183,6 +185,10 @@ type State = {
   const server = fastify();
   server.register(rawBody);
 
+  server.get("/", (_, res) => {
+    res.send("Ready!");
+  });
+
   server.post("/", async (request, reply) => {
     const signature = request.headers["x-signature-ed25519"];
     const timestamp = request.headers["x-signature-timestamp"];
@@ -266,7 +272,7 @@ type State = {
     }
   });
 
-  await connect(`mongodb://mongo/easy-roles`);
+  await connect(process.env.MONGO_URI as string);
 
   const address = "0.0.0.0";
   const port = process.env.PORT as string;
