@@ -20,7 +20,6 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from "interactions.ts";
-import { Guild } from "../models/Guild";
 import { Secret } from "../models/Secrets";
 
 export class CreateRoleButton implements ISlashCommand {
@@ -133,17 +132,11 @@ export class CreateRoleButton implements ISlashCommand {
             ).setEphemeral(true)
           );
 
-          const update: {
+          await ctx.db.updateOne({
             $unset: {
-              [key: string]: string;
-            };
-          } = {
-            $unset: {}
-          };
-
-          update["$unset"][`webhooks.${ctx.webhook.id}`] = "";
-
-          await Guild.updateOne({ id: ctx.db.id }, update);
+              [`webhooks.${ctx.webhook.channelId}`]: ""
+            }
+          });
           break;
         }
         default: {

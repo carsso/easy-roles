@@ -20,7 +20,6 @@ import {
   SimpleEmbed,
   SimpleError
 } from "interactions.ts";
-import { Guild } from "../../models/Guild";
 import { stringifyEmoji } from "../../util/stringify-emoji";
 
 type State1 = {
@@ -156,17 +155,11 @@ const SelectDeletedButton = new SelectMenu(
             ).setEphemeral(true)
           );
 
-          const update: {
+          await ctx.db.updateOne({
             $unset: {
-              [key: string]: string;
-            };
-          } = {
-            $unset: {}
-          };
-
-          update["$unset"][`webhooks.${ctx.webhook.id}`] = "";
-
-          await Guild.updateOne({ id: ctx.db.id }, update);
+              [`webhooks.${ctx.webhook.channelId}`]: ""
+            }
+          });
           break;
         }
         default: {
