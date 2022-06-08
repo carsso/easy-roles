@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: easy-roles
-          image: gcr.io/rock-solid-robots/easy-roles:cee90740-d5c3-4c90-a7d8-b3bc594e0f1e
+          image: gcr.io/rock-solid-robots/easy-roles:d3b9fa91-2f1e-4f6e-b157-f4b255949e59
           ports:
             - containerPort: 8082
           livenessProbe:

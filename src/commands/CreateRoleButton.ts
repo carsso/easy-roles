@@ -125,6 +125,19 @@ export class CreateRoleButton implements ISlashCommand {
           );
           break;
         }
+        case 10015: {
+          await ctx.reply(
+            SimpleError(
+              `The webhook for this channel seems to have been deleted. This isn't recommended as you'll no longer be able to edit previously created menus, although their buttons will still function.\n\nTo continue, you'll have to create a new menu with \`\`/create-menu\`\`.`
+            ).setEphemeral(true)
+          );
+
+          ctx.db.webhooks.delete(ctx.webhook.id);
+          ctx.db.markModified("webhooks");
+
+          await ctx.db.save();
+          break;
+        }
         default: {
           console.error(err);
           await ctx.reply(SimpleError("An unknown error occurred while adding your button.").setEphemeral(true));
