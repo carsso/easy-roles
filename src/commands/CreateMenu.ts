@@ -208,6 +208,10 @@ export class CreateMenu implements ISlashCommand {
                 ).setEphemeral(true)
               );
 
+              ctx.db.webhooks.delete(ctx.webhook.id);
+              ctx.db.markModified("webhooks");
+
+              await ctx.db.save();
               break;
             }
             default: {
