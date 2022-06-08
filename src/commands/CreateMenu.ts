@@ -15,7 +15,7 @@ import {
   TextInputStyle
 } from "interactions.ts";
 import AvatarData from "../assets/avatar";
-import { Message, Webhook } from "../models/Guild";
+import { Guild, Message, Webhook } from "../models/Guild";
 
 type State = {
   channelId: string;
@@ -208,7 +208,17 @@ export class CreateMenu implements ISlashCommand {
                 ).setEphemeral(true)
               );
 
-              await ctx.db.updateOne({ $unset: { [`webhooks.${ctx.webhook.id}`]: "" } });
+              const update: {
+                $unset: {
+                  [key: string]: string;
+                };
+              } = {
+                $unset: {}
+              };
+
+              update["$unset"][`webhooks.${ctx.webhook.id}`] = "";
+
+              await Guild.updateOne({ id: ctx.db.id }, update);
               break;
             }
             default: {

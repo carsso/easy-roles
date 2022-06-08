@@ -26,6 +26,7 @@ import {
   TextInputStyle
 } from "interactions.ts";
 import { Types } from "mongoose";
+import { Guild } from "../../models/Guild";
 import { Secret } from "../../models/Secrets";
 
 type State1 = {
@@ -498,10 +499,17 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
           ).setEphemeral(true)
         );
 
-        ctx.db.webhooks.delete(ctx.webhook.id);
-        ctx.db.markModified("webhooks");
+        const update: {
+          $unset: {
+            [key: string]: string;
+          };
+        } = {
+          $unset: {}
+        };
 
-        await ctx.db.save();
+        update["$unset"][`webhooks.${ctx.webhook.id}`] = "";
+
+        await Guild.updateOne({ id: ctx.db.id }, update);
         break;
       }
       default: {
