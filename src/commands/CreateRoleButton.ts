@@ -1,4 +1,4 @@
-import { APIActionRowComponent, APIMessageActionRowComponent, Routes } from "discord-api-types/v10";
+import { APIActionRowComponent, APIMessageActionRowComponent } from "discord-api-types/v10";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -6,9 +6,6 @@ import {
   InteractionWebhook,
   ISlashCommand,
   MessageBuilder,
-  Modal,
-  ModalBuilder,
-  ModalSubmitContext,
   PermissionBits,
   SimpleEmbed,
   SimpleError,
@@ -16,11 +13,8 @@ import {
   SlashCommandContext,
   SlashCommandIntegerOption,
   SlashCommandRoleOption,
-  SlashCommandStringOption,
-  TextInputBuilder,
-  TextInputStyle
+  SlashCommandStringOption
 } from "interactions.ts";
-import { Secret } from "../models/Secrets";
 
 export class CreateRoleButton implements ISlashCommand {
   public builder = new SlashCommandBuilder("create-role-button", "Create a Self-Role button on your most recent menu.")
@@ -157,70 +151,4 @@ export class CreateRoleButton implements ISlashCommand {
 
     return ctx.reply(SimpleEmbed("Button created!").setEphemeral(true));
   };
-
-  public components = [
-    new Modal(
-      "verifyRoleSecret",
-      new ModalBuilder()
-        .setTitle("Secret Verification")
-        .addComponents(
-          new ActionRowBuilder([
-            new TextInputBuilder("secret", "Secret", TextInputStyle.Short)
-              .setPlaceholder("This button requires a secret key to use, please enter it here.")
-              .setRequired(true)
-          ])
-        ),
-      async (ctx: ModalSubmitContext<{ roleId: string; secretId: string }>) => {
-        if (!ctx.state || !ctx.interaction.member || !ctx.interaction.guild_id) return;
-
-        const secret = await Secret.findById(ctx.state.secretId);
-        const input = ctx.components.get("secret");
-
-        if (secret === null || input === undefined) {
-          return ctx.reply(SimpleError("Secret not found.").setEphemeral(true));
-        }
-
-        if (secret.text !== input.value) {
-          return ctx.reply(SimpleError("Incorrect secret!").setEphemeral(true));
-        }
-
-        let method: "delete" | "put" = "put";
-
-        if (ctx.interaction.member.roles.find((id) => id === ctx.state?.roleId)) {
-          method = "delete";
-        }
-
-        try {
-          await ctx.manager.rest[method](
-            Routes.guildMemberRole(ctx.interaction.guild_id, ctx.interaction.member.user.id, ctx.state.roleId)
-          );
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-          switch (err.code as number) {
-            case 50013: {
-              await ctx.reply(
-                SimpleError(
-                  `I don't have permission to assign this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the one you're trying to toggle.`
-                ).setEphemeral(true)
-              );
-              break;
-            }
-            default: {
-              console.error(err);
-              await ctx.reply(SimpleError("An unknown error occurred.").setEphemeral(true));
-              break;
-            }
-          }
-
-          return;
-        }
-
-        await ctx.reply(
-          SimpleEmbed(
-            `You ${method === "put" ? "now" : "no longer"} have the <@&${ctx.state.roleId}> role!`
-          ).setEphemeral(true)
-        );
-      }
-    )
-  ];
 }

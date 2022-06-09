@@ -3,6 +3,7 @@ import "dotenv/config";
 import fastify from "fastify";
 import rawBody from "fastify-raw-body";
 import {
+  ActionRowBuilder,
   AutocompleteContext,
   Button,
   ButtonBuilder,
@@ -10,10 +11,14 @@ import {
   DiscordApplication,
   InteractionContext,
   InteractionHandlerTimedOut,
+  Modal,
   ModalBuilder,
+  ModalSubmitContext,
   PingContext,
   SimpleEmbed,
   SimpleError,
+  TextInputBuilder,
+  TextInputStyle,
   UnauthorizedInteraction,
   UnknownApplicationCommandType,
   UnknownComponentType,
@@ -23,6 +28,7 @@ import { connect, HydratedDocument } from "mongoose";
 import { createClient } from "redis";
 import { About, Autorole, CreateMenu, CreateRoleButton, Help, ManageRoleButtons, Ping } from "./commands";
 import { Guild, IGuild, IWebhook } from "./models/Guild";
+import { Secret } from "./models/Secrets";
 const keys = ["PORT", "DISCORD_TOKEN", "DISCORD_ID", "DISCORD_PUBKEY", "REDIS_URI", "MONGO_URI"];
 
 const missing = keys.filter((key) => !(key in process.env));
@@ -99,6 +105,72 @@ type State = {
   });
 
   app.components.register([
+    new Modal(
+      "verifyRoleSecret",
+      new ModalBuilder()
+        .setTitle("Secret Verification")
+        .addComponents(
+          new ActionRowBuilder([
+            new TextInputBuilder("secret", "Secret", TextInputStyle.Short)
+              .setPlaceholder("This button requires a secret key to use, please enter it here.")
+              .setRequired(true)
+          ])
+        ),
+      async (ctx: ModalSubmitContext<{ roleId: string; secretId: string }>) => {
+        if (!ctx.state || !ctx.interaction.member || !ctx.interaction.guild_id) return;
+
+        const secret = await Secret.findById(ctx.state.secretId);
+        const input = ctx.components.get("secret");
+
+        if (secret === null || input === undefined) {
+          return ctx.reply(SimpleError("Secret not found.").setEphemeral(true));
+        }
+
+        if (secret.text !== input.value) {
+          return ctx.reply(SimpleError("Incorrect secret!").setEphemeral(true));
+        }
+
+        let method: "delete" | "put" = "put";
+
+        if (ctx.interaction.member.roles.find((id) => id === ctx.state?.roleId)) {
+          method = "delete";
+        }
+
+        try {
+          await ctx.manager.rest[method](
+            Routes.guildMemberRole(ctx.interaction.guild_id, ctx.interaction.member.user.id, ctx.state.roleId)
+          );
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+          switch (err.code as number) {
+            case 50001: // Missing Access
+            case 50013: {
+              await ctx.reply(
+                SimpleError(
+                  `I don't have permission to ${
+                    method === "put" ? "assign" : "remove"
+                  } this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the one you're trying to toggle.`
+                ).setEphemeral(true)
+              );
+              break;
+            }
+            default: {
+              console.error(err);
+              await ctx.reply(SimpleError("An unknown error occurred.").setEphemeral(true));
+              break;
+            }
+          }
+
+          return;
+        }
+
+        await ctx.reply(
+          SimpleEmbed(
+            `You ${method === "put" ? "now" : "no longer"} have the <@&${ctx.state.roleId}> role!`
+          ).setEphemeral(true)
+        );
+      }
+    ),
     new Button("addRole", new ButtonBuilder(), async (ctx: ButtonContext<State>) => {
       if (!ctx.state || !ctx.interaction.guild_id)
         return ctx.reply(SimpleError("Role ID not found.").setEphemeral(true));
@@ -107,7 +179,7 @@ type State = {
 
       if (ctx.state.secretId) {
         return ctx.reply(
-          await ctx.createGlobalComponent<ModalBuilder>("create-role-button.verifyRoleSecret", {
+          await ctx.createGlobalComponent<ModalBuilder>("verifyRoleSecret", {
             secretId: ctx.state.secretId,
             roleId: ctx.state.roleId
           })
@@ -129,17 +201,8 @@ type State = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         switch (err.code as number) {
+          case 50001: // Missing Access
           case 50013: {
-            await ctx.send(
-              SimpleError(
-                `I don't have permission to ${
-                  method === "put" ? "assign" : "remove"
-                } this role. Please check that I have the \`\`Manage Roles\`\` permission and that my role is above the one you're trying to toggle.`
-              ).setEphemeral(true)
-            );
-            break;
-          }
-          case 50001: {
             await ctx.send(
               SimpleError(
                 `I don't have permission to ${
@@ -248,6 +311,7 @@ type State = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         switch (err.code as number) {
+          case 50001: // Missing Access
           case 50013: {
             guild.autoroleFailures.set(role, (guild.autoroleFailures.get(role) ?? 0) + 1);
 

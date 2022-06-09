@@ -87,6 +87,7 @@ export class CreateMenu implements ISlashCommand {
               );
               break;
             }
+            case 50001: // Missing Access
             case 50013: {
               await ctx.reply(
                 SimpleError(`I need the \`\`Manage Webhooks\`\` permission to send messages for you.`).setEphemeral(
