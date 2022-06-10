@@ -476,6 +476,10 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
     components.push(new ActionRowBuilder([button]).toJSON());
   }
 
+  if (components.length > 5) {
+    return ctx.reply(SimpleError("You can only have a max of 25 buttons (5 Rows of 5).").setEphemeral(true));
+  }
+
   try {
     await webhook.edit(new MessageBuilder({ components }), message.id);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
