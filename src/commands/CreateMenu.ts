@@ -1,8 +1,10 @@
 import { APIWebhook } from "discord-api-types/v10";
 import {
   ActionRowBuilder,
+  EmbedBuilder,
   InteractionWebhook,
   ISlashCommand,
+  MessageBuilder,
   Modal,
   ModalBuilder,
   ModalSubmitContext,
@@ -40,34 +42,40 @@ export class CreateMenu implements ISlashCommand {
       new ModalBuilder()
         .addComponents(
           new ActionRowBuilder([
-            new TextInputBuilder("name", "Webhook Username", TextInputStyle.Short)
-              .setPlaceholder("Username that will show above your menus.")
+            new TextInputBuilder("name", "Webhook Username", TextInputStyle.Paragraph)
+              .setPlaceholder(
+                "As this is your first menu in the channel, set a username for the bot to use when creating your menus."
+              )
               .setMaxLength(32)
               .setRequired(true)
           ]),
           new ActionRowBuilder([
-            new TextInputBuilder("title", "Title", TextInputStyle.Short)
-              .setRequired(true)
-              .setPlaceholder("A title for your embed.")
-              .setMaxLength(80)
+            new TextInputBuilder("title", "Title", TextInputStyle.Paragraph).setRequired(true).setMaxLength(80)
           ]),
           new ActionRowBuilder([
             new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
               .setRequired(true)
-              .setPlaceholder(
-                "A description for your embed. Tip: You can make clickable text [like this!](https://discord.com)"
-              )
+              .setPlaceholder("Tip: You can make clickable text [like this!](https://discord.com)")
               .setMaxLength(4000)
+          ]),
+          new ActionRowBuilder([
+            new TextInputBuilder("image", "Image", TextInputStyle.Paragraph)
+              .setRequired(true)
+              .setPlaceholder("A link to an image.")
+              .setMaxLength(2000)
+          ]),
+          new ActionRowBuilder([
+            new TextInputBuilder("colour", "Colour", TextInputStyle.Paragraph)
+              .setRequired(true)
+              .setPlaceholder("A hex colour code, as used in roles. (e.g. #36adcf)")
+              .setMaxLength(7)
           ])
         )
-        .setTitle("Create a Webhook"),
+        .setTitle("Create a Menu"),
       async (ctx: ModalSubmitContext<State>): Promise<void> => {
-        const title = ctx.components.get("title"),
-          description = ctx.components.get("description");
-
         const name = ctx.components.get("name");
 
-        if (!name || !title || !description) throw new Error("Missing name or embed data.");
+        if (!name) throw new Error("Missing webhook name.");
 
         let webhookData: APIWebhook;
 
@@ -108,11 +116,35 @@ export class CreateMenu implements ISlashCommand {
 
         const webhook = new InteractionWebhook(webhookData.id, webhookData.token as string);
 
-        const message = SimpleEmbed(description.value, title.value);
+        const embed = new EmbedBuilder();
+
+        const title = ctx.components.get("title");
+        const description = ctx.components.get("description");
+
+        if (!title && !description) return ctx.reply(SimpleError("Either a title or description is required."));
+
+        if (title) embed.setTitle(title.value);
+        if (description) embed.setDescription(description.value);
+
+        const colour = ctx.components.get("colour");
+        const image = ctx.components.get("image");
+
+        if (colour) {
+          if (!/#[0-9a-fA-F]{6}/.test(colour.value)) {
+            return ctx.reply(
+              SimpleError("Invalid colour. You must enter a hex colour code such as #36adcf.").setEphemeral(true)
+            );
+          }
+
+          embed.setColor(parseInt(colour.value.substring(1), 16));
+        }
+
+        if (image) embed.setImage(image.value);
+
         let sentMessage;
 
         try {
-          sentMessage = await webhook.send(message);
+          sentMessage = await webhook.send(new MessageBuilder(embed));
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
           switch (err.code as number) {
@@ -141,7 +173,7 @@ export class CreateMenu implements ISlashCommand {
           sentMessage.id,
           new Message({
             id: sentMessage.id,
-            components: JSON.stringify(message.toJSON().components)
+            components: JSON.stringify([])
           })
         );
 
@@ -173,20 +205,30 @@ export class CreateMenu implements ISlashCommand {
       new ModalBuilder()
         .addComponents(
           new ActionRowBuilder([
-            new TextInputBuilder("title", "Title", TextInputStyle.Short).setRequired(true).setMaxLength(80)
+            new TextInputBuilder("title", "Title", TextInputStyle.Paragraph).setRequired(true).setMaxLength(80)
           ]),
           new ActionRowBuilder([
             new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
               .setRequired(true)
+              .setPlaceholder("Tip: You can make clickable text [like this!](https://discord.com)")
               .setMaxLength(4000)
+          ]),
+          new ActionRowBuilder([
+            new TextInputBuilder("image", "Image", TextInputStyle.Paragraph)
+              .setRequired(true)
+              .setPlaceholder("A link to an image.")
+              .setMaxLength(2000)
+          ]),
+          new ActionRowBuilder([
+            new TextInputBuilder("colour", "Colour", TextInputStyle.Paragraph)
+              .setRequired(true)
+              .setPlaceholder("A hex colour code, as used in roles. (e.g. #36adcf)")
+              .setMaxLength(7)
           ])
         )
         .setTitle("Create a Menu"),
       async (ctx: ModalSubmitContext): Promise<void> => {
-        const title = ctx.components.get("title"),
-          description = ctx.components.get("description");
-
-        if (!title || !description || !ctx.webhook) throw new Error("Missing components.");
+        if (!ctx.webhook) throw new Error("Missing webhook.");
 
         if (ctx.webhook.messages.size === 25) {
           return ctx.reply(SimpleError("You can only have 25 menus per channel for now.").setEphemeral(true));
@@ -194,11 +236,35 @@ export class CreateMenu implements ISlashCommand {
 
         const webhook = new InteractionWebhook(ctx.webhook.id, ctx.webhook.token);
 
-        const message = SimpleEmbed(description.value, title.value);
+        const embed = new EmbedBuilder();
+
+        const title = ctx.components.get("title");
+        const description = ctx.components.get("description");
+
+        if (!title && !description) return ctx.reply(SimpleError("Either a title or description is required."));
+
+        if (title) embed.setTitle(title.value);
+        if (description) embed.setDescription(description.value);
+
+        const colour = ctx.components.get("colour");
+        const image = ctx.components.get("image");
+
+        if (colour) {
+          if (!/#[0-9a-fA-F]{6}/.test(colour.value)) {
+            return ctx.reply(
+              SimpleError("Invalid colour. You must enter a hex colour code such as #36adcf.").setEphemeral(true)
+            );
+          }
+
+          embed.setColor(parseInt(colour.value.substring(1), 16));
+        }
+
+        if (image) embed.setImage(image.value);
+
         let sentMessage;
 
         try {
-          sentMessage = await webhook.send(message);
+          sentMessage = await webhook.send(new MessageBuilder(embed));
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
           switch (err.code as number) {
@@ -228,7 +294,7 @@ export class CreateMenu implements ISlashCommand {
 
         ctx.db.webhooks.get(ctx.webhook.channelId)?.messages.set(sentMessage.id, {
           id: sentMessage.id,
-          components: JSON.stringify(message.toJSON().components)
+          components: JSON.stringify([])
         });
 
         const webhookDoc = ctx.db.webhooks.get(ctx.webhook.channelId);
@@ -237,7 +303,7 @@ export class CreateMenu implements ISlashCommand {
           webhookDoc.latestMessage = sentMessage.id;
           webhookDoc.messages.set(sentMessage.id, {
             id: sentMessage.id,
-            components: JSON.stringify(message.toJSON().components)
+            components: JSON.stringify([])
           });
 
           ctx.db.webhooks.set(ctx.webhook.channelId, webhookDoc);

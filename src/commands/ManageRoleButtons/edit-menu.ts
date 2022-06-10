@@ -30,8 +30,6 @@ const EditMenuButton = new Button(
 
     const embed = ctx.state.embed;
 
-    console.dir(ctx.state, { depth: 5 });
-
     const modal = await ctx.createComponent<ModalBuilder>("editMenuModal", {
       parentId: ctx.state.parentId,
       embed
@@ -42,13 +40,13 @@ const EditMenuButton = new Button(
         new TextInputBuilder("title", "Title", TextInputStyle.Short)
           .setRequired(true)
           .setMaxLength(80)
-          .setValue(embed?.title ?? "No title.")
+          .setValue(embed?.title ?? "")
       ]),
       new ActionRowBuilder([
         new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
           .setRequired(true)
           .setMaxLength(4000)
-          .setValue(embed?.description ?? "No description.")
+          .setValue(embed?.description ?? "")
       ])
     );
 
@@ -67,13 +65,31 @@ const EditMenuModal = new Modal(
     }
 
     const webhook = new InteractionWebhook(ctx.webhook.id, ctx.webhook.token);
-    const embed = new EmbedBuilder(ctx.state.embed);
 
-    const title = ctx.components.get("title")?.value;
-    const description = ctx.components.get("description")?.value;
+    const embed = new EmbedBuilder();
 
-    if (title) embed.setTitle(title);
-    if (description) embed.setDescription(description);
+    const title = ctx.components.get("title");
+    const description = ctx.components.get("description");
+
+    if (!title && !description) return ctx.reply(SimpleError("Either a title or description is required."));
+
+    if (title) embed.setTitle(title.value);
+    if (description) embed.setDescription(description.value);
+
+    const colour = ctx.components.get("colour");
+    const image = ctx.components.get("image");
+
+    if (colour) {
+      if (!/#[0-9a-fA-F]{6}/.test(colour.value)) {
+        return ctx.reply(
+          SimpleError("Invalid colour. You must enter a hex colour code such as #36adcf.").setEphemeral(true)
+        );
+      }
+
+      embed.setColor(parseInt(colour.value.substring(1), 16));
+    }
+
+    if (image) embed.setImage(image.value);
 
     try {
       await webhook.edit(new MessageBuilder(embed), ctx.state.parentId);

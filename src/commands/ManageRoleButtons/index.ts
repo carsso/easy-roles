@@ -44,14 +44,22 @@ export class ManageRoleButtons implements IMessageCommand {
 async function buildMessageRoleButtonMenu(
   ctx: MessageCommandContext | ButtonContext<RefreshState>
 ): Promise<MessageBuilder> {
-  let messageId: string, authorId: string;
+  let messageId: string, authorId: string, originalEmbed: APIEmbed;
 
   if (ctx instanceof MessageCommandContext) {
     messageId = Object.keys(ctx.interaction.data.resolved.messages)[0] as string;
-    authorId = ctx.interaction.data.resolved.messages[messageId].author.id;
+
+    const message = ctx.interaction.data.resolved.messages[messageId];
+
+    authorId = message.author.id;
+    originalEmbed = message.embeds[0];
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     messageId = ctx.state!.messageId;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     authorId = ctx.state!.authorId;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    originalEmbed = ctx.state!.embed;
   }
 
   if (!ctx.webhook || ctx.webhook.id !== authorId) {
@@ -96,8 +104,6 @@ async function buildMessageRoleButtonMenu(
   }
 
   embed.setDescription(description);
-
-  const originalEmbed = ctx instanceof ButtonContext ? ctx?.state?.embed : ctx.interaction.message?.embeds[0];
 
   return new MessageBuilder(embed)
     .setEphemeral(true)
