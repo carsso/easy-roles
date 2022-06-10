@@ -35,34 +35,36 @@ const EditMenuButton = new Button(
       embed
     });
 
+    const title = new TextInputBuilder("title", "Title", TextInputStyle.Short).setMaxLength(80).setRequired(false);
+
+    if (ctx.state.embed?.title) title.setValue(ctx.state.embed.title);
+
+    const description = new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
+      .setPlaceholder("Tip: You can make clickable text [like this!](https://discord.com)")
+      .setMaxLength(4000)
+      .setRequired(false);
+
+    if (ctx.state.embed?.description) description.setValue(ctx.state.embed.description);
+
+    const image = new TextInputBuilder("image", "Image", TextInputStyle.Short)
+      .setPlaceholder("A link to an image.")
+      .setMaxLength(2000)
+      .setRequired(false);
+
+    if (ctx.state.embed?.image?.url) image.setValue(ctx.state.embed?.image?.url);
+
+    const colour = new TextInputBuilder("colour", "Colour", TextInputStyle.Paragraph)
+      .setPlaceholder("A hex colour code, as used in roles. (e.g. #36adcf)")
+      .setMaxLength(7)
+      .setRequired(false);
+
+    if (ctx.state.embed?.color) colour.setValue(`#${ctx.state.embed?.color?.toString(16)}`);
+
     modal.addComponents(
-      new ActionRowBuilder([
-        new TextInputBuilder("title", "Title", TextInputStyle.Short)
-          .setMaxLength(80)
-          .setRequired(false)
-          .setValue(ctx.state.embed?.title || "")
-      ]),
-      new ActionRowBuilder([
-        new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
-          .setPlaceholder("Tip: You can make clickable text [like this!](https://discord.com)")
-          .setMaxLength(4000)
-          .setRequired(false)
-          .setValue(ctx.state.embed?.description || "")
-      ]),
-      new ActionRowBuilder([
-        new TextInputBuilder("image", "Image", TextInputStyle.Short)
-          .setPlaceholder("A link to an image.")
-          .setMaxLength(2000)
-          .setRequired(false)
-          .setValue(ctx.state.embed?.image?.url || "")
-      ]),
-      new ActionRowBuilder([
-        new TextInputBuilder("colour", "Colour", TextInputStyle.Paragraph)
-          .setPlaceholder("A hex colour code, as used in roles. (e.g. #36adcf)")
-          .setMaxLength(7)
-          .setRequired(false)
-          .setValue(ctx.state.embed?.color ? `#${ctx.state.embed?.color?.toString(16)}` : "")
-      ])
+      new ActionRowBuilder([title]),
+      new ActionRowBuilder([description]),
+      new ActionRowBuilder([image]),
+      new ActionRowBuilder([colour])
     );
 
     return ctx.reply(modal);
