@@ -41,14 +41,7 @@ export class CreateMenu implements ISlashCommand {
       "createWebhookAndEmbed",
       new ModalBuilder()
         .addComponents(
-          new ActionRowBuilder([
-            new TextInputBuilder("name", "Username", TextInputStyle.Paragraph)
-              .setPlaceholder(
-                "As this is your first menu in the channel, set a username for the bot to use when creating your menus."
-              )
-              .setMaxLength(32)
-              .setRequired(true)
-          ]),
+          new ActionRowBuilder([new TextInputBuilder("name", "Username", TextInputStyle.Short).setMaxLength(32)]),
           new ActionRowBuilder([
             new TextInputBuilder("title", "Title", TextInputStyle.Short).setMaxLength(80).setRequired(false)
           ]),
