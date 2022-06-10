@@ -36,21 +36,26 @@ const EditMenuButton = new Button(
     });
 
     modal.addComponents(
-      new ActionRowBuilder([new TextInputBuilder("title", "Title", TextInputStyle.Short).setMaxLength(80)]),
+      new ActionRowBuilder([
+        new TextInputBuilder("title", "Title", TextInputStyle.Short).setMaxLength(80).setRequired(false)
+      ]),
       new ActionRowBuilder([
         new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
           .setPlaceholder("Tip: You can make clickable text [like this!](https://discord.com)")
           .setMaxLength(4000)
+          .setRequired(false)
       ]),
       new ActionRowBuilder([
         new TextInputBuilder("image", "Image", TextInputStyle.Short)
           .setPlaceholder("A link to an image.")
           .setMaxLength(2000)
+          .setRequired(false)
       ]),
       new ActionRowBuilder([
         new TextInputBuilder("colour", "Colour", TextInputStyle.Paragraph)
           .setPlaceholder("A hex colour code, as used in roles. (e.g. #36adcf)")
           .setMaxLength(7)
+          .setRequired(false)
       ])
     );
 
