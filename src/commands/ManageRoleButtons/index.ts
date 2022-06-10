@@ -102,7 +102,7 @@ async function buildMessageRoleButtonMenu(
     .addComponents(
       new ActionRowBuilder([
         await ctx.createComponent("refresh", { messageId, authorId }),
-        await ctx.createComponent("editMenuButton", { parentId: messageId })
+        await ctx.createComponent("editMenuButton", { parentId: messageId, embed: ctx.interaction.message?.embeds[0] })
       ]),
       new ActionRowBuilder([
         await ctx.createComponent("createRoleButton", { parentId: messageId }),

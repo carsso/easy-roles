@@ -17,11 +17,7 @@ import {
   TextInputStyle
 } from "interactions.ts";
 
-type State1 = {
-  parentId: string;
-};
-
-type State2 = {
+type State = {
   parentId: string;
   embed: APIEmbed;
 };
@@ -29,10 +25,10 @@ type State2 = {
 const EditMenuButton = new Button(
   "editMenuButton",
   new ButtonBuilder(ButtonStyle.Primary, "Edit").setEmoji({ name: "🖋" }),
-  async (ctx: ButtonContext<State1>) => {
+  async (ctx: ButtonContext<State>) => {
     if (!ctx.state) return;
 
-    const embed = ctx.interaction.message.embeds[0];
+    const embed = ctx.state.embed;
 
     const modal = await ctx.createComponent<ModalBuilder>("editMenuModal", {
       parentId: ctx.state.parentId,
@@ -50,7 +46,7 @@ const EditMenuButton = new Button(
         new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
           .setRequired(true)
           .setMaxLength(4000)
-          .setValue(embed?.title ?? "No description.")
+          .setValue(embed?.description ?? "No description.")
       ])
     );
 
@@ -61,7 +57,7 @@ const EditMenuButton = new Button(
 const EditMenuModal = new Modal(
   "editMenuModal",
   new ModalBuilder().setTitle("Edit your Menu"),
-  async (ctx: ModalSubmitContext<State2>): Promise<void> => {
+  async (ctx: ModalSubmitContext<State>): Promise<void> => {
     if (!ctx.state) throw new Error("State is undefined");
 
     if (!ctx.webhook) {
