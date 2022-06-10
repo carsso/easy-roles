@@ -41,7 +41,12 @@ export class CreateMenu implements ISlashCommand {
       "createWebhookAndEmbed",
       new ModalBuilder()
         .addComponents(
-          new ActionRowBuilder([new TextInputBuilder("name", "Username", TextInputStyle.Short).setMaxLength(32)]),
+          new ActionRowBuilder([
+            new TextInputBuilder("name", "Username", TextInputStyle.Short)
+              .setPlaceholder("Bot's Username for the Channel")
+              .setMaxLength(32)
+              .setRequired(true)
+          ]),
           new ActionRowBuilder([
             new TextInputBuilder("title", "Title", TextInputStyle.Short).setMaxLength(80).setRequired(false)
           ]),
@@ -49,6 +54,18 @@ export class CreateMenu implements ISlashCommand {
             new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
               .setPlaceholder("Tip: You can make clickable text [like this!](https://discord.com)")
               .setMaxLength(4000)
+              .setRequired(false)
+          ]),
+          new ActionRowBuilder([
+            new TextInputBuilder("image", "Image", TextInputStyle.Short)
+              .setPlaceholder("A link to an image.")
+              .setMaxLength(2000)
+              .setRequired(false)
+          ]),
+          new ActionRowBuilder([
+            new TextInputBuilder("colour", "Colour", TextInputStyle.Paragraph)
+              .setPlaceholder("A hex colour code, as used in roles. (e.g. #36adcf)")
+              .setMaxLength(7)
               .setRequired(false)
           ])
         )
