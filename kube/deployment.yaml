@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: easy-roles
-          image: gcr.io/rock-solid-robots/easy-roles:75d8dcb2-7198-4f09-9d5f-d4f14f501237
+          image: gcr.io/rock-solid-robots/easy-roles:758d7886-1b3a-41c6-a72c-d55016208d7c
           ports:
             - containerPort: 8082
           livenessProbe:
@@ -77,3 +77,18 @@ spec:
                   name: easy-roles
                   key: mongo-uri
                   optional: false
+        - name: easy-roles-gateway
+          image: gcr.io/rock-solid-robots/easy-roles-gateway:cee90740-d5c3-4c90-a7d8-b3bc594e0f1e
+          env:
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: easy-roles
+                  key: discord-token
+                  optional: false
+            - name: TARGET_URI
+              value: "http://easy-roles:8082/member-join"
+        - name: easy-roles-redis
+          image: redis:latest
+          ports:
+          - containerPort: 6379

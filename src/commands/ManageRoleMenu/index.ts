@@ -18,8 +18,8 @@ import { EditMenu } from "./edit-menu";
 
 type RefreshState = { messageId: string; authorId: string; embed: APIEmbed };
 
-export class ManageRoleButtons implements IMessageCommand {
-  public builder = new MessageCommandBuilder("Manage Role Buttons")
+export class ManageRoleMenu implements IMessageCommand {
+  public builder = new MessageCommandBuilder("Manage Role Menu")
     .setDMEnabled(false)
     .addRequiredPermissions(PermissionBits.ADMINISTRATOR);
 

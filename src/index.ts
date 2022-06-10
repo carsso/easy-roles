@@ -26,7 +26,7 @@ import {
 } from "interactions.ts";
 import { connect, HydratedDocument } from "mongoose";
 import { createClient } from "redis";
-import { About, Autorole, CreateMenu, CreateRoleButton, Help, ManageRoleButtons, Ping } from "./commands";
+import { About, Autorole, CreateMenu, CreateRoleButton, Help, ManageRoleMenu, Ping } from "./commands";
 import { Guild, IGuild, IWebhook } from "./models/Guild";
 import { Secret } from "./models/Secrets";
 const keys = ["PORT", "DISCORD_TOKEN", "DISCORD_ID", "DISCORD_PUBKEY", "REDIS_URI", "MONGO_URI"];
@@ -235,7 +235,7 @@ type State = {
       new Help(),
       new About(),
       new Ping(),
-      new ManageRoleButtons(),
+      new ManageRoleMenu(),
       new CreateMenu(),
       new CreateRoleButton(),
       new Autorole()
