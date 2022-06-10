@@ -30,10 +30,18 @@ const EditMenuButton = new Button(
 
     const embed = ctx.state.embed;
 
-    const modal = await ctx.createComponent<ModalBuilder>("editMenuModal", {
-      parentId: ctx.state.parentId,
-      embed
-    });
+    const modal = new ModalBuilder(
+      JSON.parse(
+        JSON.stringify(
+          (
+            await ctx.createComponent<ModalBuilder>("editMenuModal", {
+              parentId: ctx.state.parentId,
+              embed
+            })
+          ).toJSON()
+        )
+      )
+    );
 
     const title = new TextInputBuilder("title", "Title", TextInputStyle.Short).setMaxLength(80).setRequired(false);
 
