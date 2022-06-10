@@ -30,6 +30,8 @@ const EditMenuButton = new Button(
 
     const embed = ctx.state.embed;
 
+    console.dir(ctx.state, { depth: 5 });
+
     const modal = await ctx.createComponent<ModalBuilder>("editMenuModal", {
       parentId: ctx.state.parentId,
       embed
