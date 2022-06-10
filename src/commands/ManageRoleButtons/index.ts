@@ -14,6 +14,7 @@ import {
 import { stringifyEmoji } from "../../util/stringify-emoji";
 import { CreateRoleButtonButtons } from "./create-button";
 import { DeleteRoleButtonButtons } from "./delete-button";
+import { EditMenu } from "./edit-menu";
 
 type RefreshState = { messageId: string; authorId: string };
 
@@ -34,6 +35,7 @@ export class ManageRoleButtons implements IMessageCommand {
         return ctx.reply(await buildMessageRoleButtonMenu(ctx));
       }
     ),
+    ...EditMenu,
     ...CreateRoleButtonButtons,
     ...DeleteRoleButtonButtons
   ];
@@ -100,6 +102,9 @@ async function buildMessageRoleButtonMenu(
     .addComponents(
       new ActionRowBuilder([
         await ctx.createComponent("refresh", { messageId, authorId }),
+        await ctx.createComponent("editMenuButton", { parentId: messageId })
+      ]),
+      new ActionRowBuilder([
         await ctx.createComponent("createRoleButton", { parentId: messageId }),
         await ctx.createComponent("removeRoleButton", { parentId: messageId })
       ])
