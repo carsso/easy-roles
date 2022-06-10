@@ -54,16 +54,6 @@ export class CreateMenu implements ISlashCommand {
             new TextInputBuilder("description", "Description", TextInputStyle.Paragraph)
               .setPlaceholder("Tip: You can make clickable text [like this!](https://discord.com)")
               .setMaxLength(4000)
-          ]),
-          new ActionRowBuilder([
-            new TextInputBuilder("image", "Image", TextInputStyle.Short)
-              .setPlaceholder("A link to an image.")
-              .setMaxLength(2000)
-          ]),
-          new ActionRowBuilder([
-            new TextInputBuilder("colour", "Colour", TextInputStyle.Paragraph)
-              .setPlaceholder("A hex colour code, as used in roles. (e.g. #36adcf)")
-              .setMaxLength(7)
           ])
         )
         .setTitle("Create a Menu"),
