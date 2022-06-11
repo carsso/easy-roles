@@ -13,7 +13,7 @@ export class About implements ISlashCommand {
 
           Create a menu using \`\`/create-menu\`\`, then use the interactive menu under:
 
-          Hold/Right Click on Message -> Apps -> Manage Role Buttons
+          Hold/Right Click on Message -> Apps -> Manage Role Menu
 
           If you'd like to stick to commands, you can also use \`\`/create-role-button\`\` to create a button on the most recent menu in the channel.
 

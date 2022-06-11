@@ -194,7 +194,7 @@ export class CreateMenu implements ISlashCommand {
 
         return ctx.reply(
           SimpleEmbed(
-            "Success! Right Click/Hold on the message, go to **Apps** and **Manage Role Buttons** to continue!"
+            "Success! Now Right Click/Hold on the message and go to **Apps** -> **Manage Role Menu** to continue!"
           ).setEphemeral(true)
         );
       }

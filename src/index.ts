@@ -243,16 +243,6 @@ type State = {
     false
   );
 
-  const old = (await app.commands.getAPICommands()).find((cmd) => cmd.name === "Manage Role Buttons");
-
-  if (old) {
-    try {
-      await app.commands.deleteAPICommand(old?.id);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   const server = fastify();
   server.register(rawBody);
 
