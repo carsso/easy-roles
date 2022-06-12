@@ -1,20 +1,32 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: easy-roles-gateway
   namespace: default
   labels:
-    app: easy-roles-gateway
+    app: easy-roles
+    component: gateway
 spec:
-  containers:
-  - name: easy-roles-gateway
-    image: gcr.io/rock-solid-robots/easy-roles-gateway:cee90740-d5c3-4c90-a7d8-b3bc594e0f1e
-    env:
-      - name: DISCORD_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: easy-roles
-            key: discord-token
-            optional: false
-      - name: TARGET_URI
-        value: "http://easy-roles:8082/member-join"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easy-roles
+      component: gateway
+  template:
+    metadata:
+      labels:
+        app: easy-roles
+        component: gateway
+    spec:
+      containers:
+      - name: easy-roles-gateway
+        image: gcr.io/rock-solid-robots/easy-roles-gateway:cee90740-d5c3-4c90-a7d8-b3bc594e0f1e
+        env:
+          - name: DISCORD_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: easy-roles
+                key: discord-token
+                optional: false
+          - name: TARGET_URI
+            value: "http://easy-roles:8082/member-join"

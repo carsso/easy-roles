@@ -5,12 +5,14 @@ metadata:
   namespace: default
   labels:
     app: easy-roles
+    component: http
 spec:
   type: ClusterIP
   ports:
   - port: 8082
   selector:
     app: easy-roles
+    component: http
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,14 +24,16 @@ spec:
   selector:
     matchLabels:
       app: easy-roles
+      component: http
   template:
     metadata:
       labels:
         app: easy-roles
+        component: http
     spec:
       containers:
         - name: easy-roles
-          image: gcr.io/rock-solid-robots/easy-roles:1c9ae8ad-a2a4-4ff9-bfff-06a7eed1faa7
+          image: gcr.io/rock-solid-robots/easy-roles:20665c34-401a-423c-a70e-2b31764992f0
           ports:
             - containerPort: 8082
           livenessProbe:
@@ -77,18 +81,3 @@ spec:
                   name: easy-roles
                   key: mongo-uri
                   optional: false
-        - name: easy-roles-gateway
-          image: gcr.io/rock-solid-robots/easy-roles-gateway:cee90740-d5c3-4c90-a7d8-b3bc594e0f1e
-          env:
-            - name: DISCORD_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: easy-roles
-                  key: discord-token
-                  optional: false
-            - name: TARGET_URI
-              value: "http://easy-roles:8082/member-join"
-        - name: easy-roles-redis
-          image: redis:latest
-          ports:
-          - containerPort: 6379

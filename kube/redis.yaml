@@ -4,24 +4,38 @@ metadata:
   name: easy-roles-redis
   namespace: default
   labels:
-    app: easy-roles-redis
+    app: easy-roles
+    component: redis
 spec:
   type: ClusterIP
   ports:
   - port: 6379
   selector:
-    app: easy-roles-redis
+    app: easy-roles
+    component: redis
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: easy-roles-redis
   namespace: default
   labels:
-    app: easy-roles-redis
+    app: easy-roles
+    component: redis
 spec:
-  containers:
-  - name: easy-roles-redis
-    image: redis:latest
-    ports:
-    - containerPort: 6379
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easy-roles
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: easy-roles
+        component: redis
+    spec:
+      containers:
+        - name: easy-roles-redis
+          image: redis:latest
+          ports:
+          - containerPort: 6379
