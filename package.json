@@ -19,7 +19,7 @@
     "dotenv": "^16.0.0",
     "fastify": "^3.27.4",
     "fastify-raw-body": "^3.2.0",
-    "interactions.ts": "^1.0.39",
+    "interactions.ts": "^1.0.40",
     "mongoose": "^6.3.4",
     "redis": "^4.1.0"
   },
