@@ -358,7 +358,7 @@ const UpdateByNameOrId = new Modal(
 );
 
 async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmitContext<State2>) {
-  if (!ctx.state) return;
+  if (!ctx.state) return ctx.defer();
 
   if (!ctx.webhook) {
     return ctx.reply(SimpleError("Webhook not found.").setEphemeral(true));
@@ -417,7 +417,7 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
     : [];
 
   async function getButton(id: number): Promise<ButtonBuilder> {
-    if (!ctx.state) throw new Error("No state");
+    if (!ctx.state) throw new Error("State not found.");
 
     let secretId = null;
 

@@ -73,7 +73,7 @@ export class CreateMenu implements ISlashCommand {
       async (ctx: ModalSubmitContext<State>): Promise<void> => {
         const name = ctx.components.get("name");
 
-        if (!name) throw new Error("Missing webhook name.");
+        if (!name) return ctx.reply("A webhook name is required.");
 
         let webhookData: APIWebhook;
 
@@ -227,7 +227,13 @@ export class CreateMenu implements ISlashCommand {
         )
         .setTitle("Create a Menu"),
       async (ctx: ModalSubmitContext): Promise<void> => {
-        if (!ctx.webhook) throw new Error("Missing webhook.");
+        if (!ctx.webhook) {
+          return ctx.reply(
+            SimpleError(
+              "Please do not delete the webhook created by the bot, this is necessary for it to function. To continue, please start over."
+            )
+          );
+        }
 
         if (ctx.webhook.messages.size === 25) {
           return ctx.reply(SimpleError("You can only have 25 menus per channel for now.").setEphemeral(true));

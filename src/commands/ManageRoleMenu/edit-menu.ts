@@ -75,7 +75,7 @@ const EditMenuModal = new Modal(
   "editMenuModal",
   new ModalBuilder().setTitle("Edit your Menu"),
   async (ctx: ModalSubmitContext<State>): Promise<void> => {
-    if (!ctx.state) throw new Error("State is undefined");
+    if (!ctx.state) return ctx.defer();
 
     if (!ctx.webhook) {
       return ctx.reply(SimpleError("Webhook not found.").setEphemeral(true));

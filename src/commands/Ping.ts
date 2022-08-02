@@ -30,7 +30,7 @@ export class Ping implements ISlashCommand {
       "pong",
       new ButtonBuilder().setEmoji({ name: "🏓" }).setStyle(1),
       async (ctx: ButtonContext<State>): Promise<void> => {
-        if (!ctx.state) throw new Error("State missing.");
+        if (!ctx.state) return ctx.defer();
 
         ctx.reply(
           new MessageBuilder(new EmbedBuilder().setTitle(ctx.state.ping ? "Pong!" : "Ping!")).addComponents(
