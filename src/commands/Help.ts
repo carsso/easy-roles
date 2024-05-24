@@ -11,7 +11,7 @@ export class Help implements ISlashCommand {
           `
           If you're just curious about how to use the bot, check the \`\`/about\`\` command for a basic explanation. 
           
-          If that's not enough, [click here](https://rocksolidrobots.net/discord) to visit our Discord server where you can get announcements and support for any of our bots.`
+          If that's not enough, [click here](https://discord.gg/JVJjP5DM8U) to visit our Discord server where we can help you.`
         )
       )
     );
