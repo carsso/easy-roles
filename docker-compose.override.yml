@@ -1,0 +1,10 @@
+# Override for development environment
+# This file is automatically used by docker-compose for development
+services:
+  discord-easy-roles:
+    volumes:
+      - ./src:/usr/app/src
+      - ./tsconfig.json:/usr/app/tsconfig.json
+      - ./package.json:/usr/app/package.json
+      - ./yarn.lock:/usr/app/yarn.lock
+      - ./nodemon.json:/usr/app/nodemon.json
