@@ -20,9 +20,6 @@ interface IGuild {
   id: string;
 
   webhooks: Types.Map<IWebhook>;
-
-  autoroles: Types.Array<string>;
-  autoroleFailures: Types.Map<number>;
 }
 
 const MessageSchema = new Schema<IMessage>({
@@ -52,17 +49,6 @@ const GuildSchema = new Schema<IGuild>({
     type: Map,
     required: true,
     of: WebhookSchema
-  },
-
-  autoroles: {
-    type: [String],
-    required: true,
-    default: []
-  },
-  autoroleFailures: {
-    type: Map,
-    required: true,
-    of: Number
   }
 });
 

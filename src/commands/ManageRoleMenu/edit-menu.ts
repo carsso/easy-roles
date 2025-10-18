@@ -89,7 +89,7 @@ const EditMenuModal = new Modal(
     const description = ctx.components.get("description");
 
     if (!title?.value && !description?.value)
-      return ctx.reply(SimpleError("Either a title or description is required."));
+      return ctx.reply(SimpleError("Either a title or description is required.").setEphemeral(true));
 
     if (title?.value) embed.setTitle(title.value);
     if (description?.value) embed.setDescription(description.value);

@@ -26,7 +26,7 @@ import {
 } from "interactions.ts";
 import { connect, HydratedDocument } from "mongoose";
 import { createClient } from "redis";
-import { About, Autorole, CreateMenu, CreateRoleButton, Help, ManageRoleMenu, Ping } from "./commands";
+import { About, CreateMenu, CreateRoleButton, ManageRoleMenu } from "./commands";
 import { Guild, IGuild, IWebhook } from "./models/Guild";
 import { Secret } from "./models/Secrets";
 const keys = ["PORT", "DISCORD_TOKEN", "DISCORD_ID", "DISCORD_PUBKEY", "REDIS_URI", "MONGO_URI"];
@@ -81,7 +81,7 @@ type State = {
             await data.populate("webhooks");
             await data.populate("webhooks.$*.messages");
           } else {
-            data = new Guild({ id: ctx.interaction.guild_id, webhooks: new Map(), autoroleFailures: new Map() });
+            data = new Guild({ id: ctx.interaction.guild_id, webhooks: new Map() });
             await data.save();
           }
         } catch (err) {
@@ -90,7 +90,7 @@ type State = {
           if (ctx instanceof AutocompleteContext) {
             await ctx.reply([]);
           } else {
-            await ctx.reply(SimpleError("There was an error loading your game data"));
+            await ctx.reply(SimpleError("There was an error loading your game data").setEphemeral(true));
           }
 
           return true;
@@ -232,13 +232,10 @@ type State = {
 
   await app.commands.register(
     [
-      new Help(),
       new About(),
-      new Ping(),
       new ManageRoleMenu(),
       new CreateMenu(),
-      new CreateRoleButton(),
-      new Autorole()
+      new CreateRoleButton()
     ],
     false
   );
@@ -293,44 +290,6 @@ type State = {
       }
 
       console.error(err);
-    }
-  });
-
-  server.post("/member-join", async (request, reply) => {
-    const data = request.body as { guild_id: string; member_id: string };
-
-    const guild = await Guild.findOne({ id: data.guild_id });
-
-    if (!guild) {
-      return reply.send();
-    }
-
-    for (const role of guild.autoroles) {
-      try {
-        await app.rest.put(Routes.guildMemberRole(data.guild_id, data.member_id, role));
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        switch (err.code as number) {
-          case 50001: // Missing Access
-          case 50013: {
-            guild.autoroleFailures.set(role, (guild.autoroleFailures.get(role) ?? 0) + 1);
-
-            if ((guild.autoroleFailures.get(role) as number) >= 3) {
-              guild.autoroles.splice(guild.autoroles.indexOf(role), 1);
-              guild.autoroleFailures.delete(role);
-            }
-
-            console.log("Removing autorole due to lack of permissions.");
-            await guild.save();
-
-            break;
-          }
-          default: {
-            console.error(err);
-            break;
-          }
-        }
-      }
     }
   });
 

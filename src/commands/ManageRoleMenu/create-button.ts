@@ -87,7 +87,7 @@ const DefineRoleButton = new Modal(
     )
     .setTitle("Label your new button"),
   async (ctx: ModalSubmitContext<State1>) => {
-    if (!ctx.state) return ctx.reply(SimpleError("Expired."));
+    if (!ctx.state) return ctx.reply(SimpleError("Expired.").setEphemeral(true));
 
     if (!ctx.components.has("label") && !ctx.components.has("emoji")) {
       return ctx.reply(SimpleError("You must set either a label or an emoji for your button.").setEphemeral(true));
@@ -204,7 +204,7 @@ const RoleListBackPage = new Button(
   "selectRolePrevPage",
   new ButtonBuilder(ButtonStyle.Secondary).setEmoji({ name: "◀️" }),
   async (ctx: ButtonContext<State2>) => {
-    if (!ctx.state) return ctx.reply(SimpleError("Expired."));
+    if (!ctx.state) return ctx.reply(SimpleError("Expired.").setEphemeral(true));
 
     ctx.state.page -= 1;
 
@@ -220,7 +220,7 @@ const RoleListBackPage = new Button(
       switch (err.code as number) {
         default: {
           console.error(err);
-          await ctx.reply(SimpleError("An unknown error occurred."));
+          await ctx.reply(SimpleError("An unknown error occurred.").setEphemeral(true));
           break;
         }
       }
@@ -229,7 +229,7 @@ const RoleListBackPage = new Button(
     }
 
     if (roles.length === 0) {
-      return ctx.reply(SimpleError("There are no roles on this page."));
+      return ctx.reply(SimpleError("There are no roles on this page.").setEphemeral(true));
     }
 
     for (let i = (ctx.state.page - 1) * 25; i < Math.min(roles.length, ctx.state.page * 25); i++) {
@@ -268,7 +268,7 @@ const RoleListNextPage = new Button(
   "selectRoleNextPage",
   new ButtonBuilder(ButtonStyle.Secondary).setEmoji({ name: "▶️" }),
   async (ctx: ButtonContext<State2>) => {
-    if (!ctx.state) return ctx.reply(SimpleError("Expired."));
+    if (!ctx.state) return ctx.reply(SimpleError("Expired.").setEphemeral(true));
 
     ctx.state.page += 1;
 
@@ -284,7 +284,7 @@ const RoleListNextPage = new Button(
       switch (err.code as number) {
         default: {
           console.error(err);
-          await ctx.reply(SimpleError("An unknown error occurred."));
+          await ctx.reply(SimpleError("An unknown error occurred.").setEphemeral(true));
           break;
         }
       }
@@ -293,7 +293,7 @@ const RoleListNextPage = new Button(
     }
 
     if (roles.length === 0) {
-      return ctx.reply(SimpleError("There are no roles on this page."));
+      return ctx.reply(SimpleError("There are no roles on this page.").setEphemeral(true));
     }
 
     for (let i = (ctx.state.page - 1) * 25; i < Math.min(roles.length, ctx.state.page * 25); i++) {
@@ -379,7 +379,7 @@ async function updateRoleButtonMenu(ctx: SelectMenuContext<State2> | ModalSubmit
       switch (err.code as number) {
         default: {
           console.error(err);
-          await ctx.reply(SimpleError("An unknown error occurred."));
+          await ctx.reply(SimpleError("An unknown error occurred.").setEphemeral(true));
           break;
         }
       }

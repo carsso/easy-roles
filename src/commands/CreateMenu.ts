@@ -16,12 +16,33 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from "interactions.ts";
-import AvatarData from "../assets/avatar";
 import { Message, Webhook } from "../models/Guild";
+import * as https from "https";
 
 type State = {
   channelId: string;
 };
+
+// Fonction utilitaire pour télécharger une image et l'encoder en base64
+function downloadImageAsBase64(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    https.get(url, (response: any) => {
+      const chunks: Buffer[] = [];
+      
+      response.on('data', (chunk: any) => {
+        chunks.push(chunk);
+      });
+      
+      response.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        const base64 = buffer.toString('base64');
+        resolve(`data:image/png;base64,${base64}`);
+      });
+      
+      response.on('error', reject);
+    }).on('error', reject);
+  });
+}
 
 export class CreateMenu implements ISlashCommand {
   public builder = new SlashCommandBuilder("create-menu", "Create a role menu through the bot.")
@@ -78,10 +99,20 @@ export class CreateMenu implements ISlashCommand {
         let webhookData: APIWebhook;
 
         try {
+          // Récupérer les informations du bot pour obtenir son avatar
+          const botUser = await ctx.manager.rest.get("/users/@me") as { avatar: string | null; id: string };
+          
+          let avatarDataUrl: string | undefined;
+          
+          if (botUser.avatar) {
+            const avatarUrl = `https://cdn.discordapp.com/avatars/${process.env.DISCORD_ID}/${botUser.avatar}.png`;
+            avatarDataUrl = await downloadImageAsBase64(avatarUrl);
+          }
+
           webhookData = (await ctx.manager.rest.post(`/channels/${ctx.interaction.channel_id}/webhooks`, {
             body: {
               name: name.value ?? "Easy Roles",
-              avatar: AvatarData.data
+              ...(avatarDataUrl && { avatar: avatarDataUrl })
             }
           })) as APIWebhook;
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,7 +151,7 @@ export class CreateMenu implements ISlashCommand {
         const description = ctx.components.get("description");
 
         if (!title?.value && !description?.value)
-          return ctx.reply(SimpleError("Either a title or description is required."));
+          return ctx.reply(SimpleError("Either a title or description is required.").setEphemeral(true));
 
         if (title?.value) embed.setTitle(title.value);
         if (description?.value) embed.setDescription(description.value);
@@ -231,7 +262,7 @@ export class CreateMenu implements ISlashCommand {
           return ctx.reply(
             SimpleError(
               "Please do not delete the webhook created by the bot, this is necessary for it to function. To continue, please start over."
-            )
+            ).setEphemeral(true)
           );
         }
 
@@ -247,7 +278,7 @@ export class CreateMenu implements ISlashCommand {
         const description = ctx.components.get("description");
 
         if (!title?.value && !description?.value)
-          return ctx.reply(SimpleError("Either a title or description is required."));
+          return ctx.reply(SimpleError("Either a title or description is required.").setEphemeral(true));
 
         if (title?.value) embed.setTitle(title.value);
         if (description?.value) embed.setDescription(description.value);
