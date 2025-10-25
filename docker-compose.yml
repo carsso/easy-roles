@@ -1,0 +1,51 @@
+services:
+  discord-easy-roles:
+    build:
+      context: "."
+      dockerfile: "./Dockerfile"
+      target: ${DOCKER_TARGET:-production}
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - mongo
+    networks:
+      - discord-easy-roles-network
+    ports:
+      - "8082:8082"
+    environment:
+      - TZ=Europe/Paris
+      - REDIS_URI=redis://redis:6379
+      - MONGO_URI=mongodb://mongo:27017/easyroles
+      - PORT=8082
+      - NODE_ENV=${NODE_ENV:-production}
+    profiles: ["dev", "prod"]
+    # Command changes based on environment
+    command: ${COMMAND:-yarn start}
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - discord-easy-roles-network
+    profiles: ["dev", "prod"]
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - discord-easy-roles-network
+    profiles: ["dev", "prod"]
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  discord-easy-roles-network:
+    driver: bridge
