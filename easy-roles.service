@@ -1,0 +1,18 @@
+[Unit]
+Description=Easy Roles Discord Bot
+After=network.target docker.service
+Requires=docker.service
+Wants=network.target
+
+[Service]
+Restart=always
+User=root
+Group=docker
+WorkingDirectory=/opt/easy-roles
+
+ExecStartPre=/usr/bin/docker compose -f docker-compose.yml --profile prod down --remove-orphans
+ExecStart=/usr/bin/docker compose -f docker-compose.yml --profile prod up --remove-orphans
+ExecStop=/usr/bin/docker compose -f docker-compose.yml --profile prod down --remove-orphans
+
+[Install]
+WantedBy=multi-user.target
